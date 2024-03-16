@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>iOS Webarchive Decoder</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <h1>iOS Webarchive Decoder</h1>
+
+  <p>
+    This tool allows you to decode an iOS webarchive file into plain text. This can be useful for extracting text from web pages that are no longer available online.
+  </p>
+
+  <form id="form">
+    <label for="webarchive-file">iOS Webarchive File:</label>
+    <input type="file" id="webarchive-file" accept=".webarchive" />
+    <button type="submit" class="button">Decode</button>
+  </form>
+
+  <div id="result">
+    <div id="text-viewer"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>
