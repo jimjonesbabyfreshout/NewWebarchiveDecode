@@ -1,35 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>iOS Webarchive Decoder</title>
-  <link rel="stylesheet" href="style.css" />
-    <!-- Add CDN URLs for all frameworks and modules -->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-</head>
-<body>
-  <h1>iOS Webarchive Decoder</h1>
-
-  <p>
-    This tool allows you to decode an iOS webarchive file into plain text. This can be useful for extracting text from web pages that are no longer available online.
-  </p>
-
-  <form id="form">
-    <label for="webarchive-file">iOS Webarchive File:</label>
-    <input type="file" id="webarchive-file" accept=".webarchive" />
-    <button type="submit" class="button">Decode</button>
-  </form>
-
-  <div id="result">
-    <div id="text-viewer"></div>
-  </div>
-
-  <script src="main.js"></script>
-   <script>
+  <link rel="stylesheet" href="style.css">
+  <!-- Add CDN URLs for all frameworks and modules -->
+  <script type="module">
     // Create a function to dynamically load a module from a CDN URL
     async function loadModule(url) {
       try {
@@ -74,7 +51,17 @@
         console.error('Error loading ReactDOM:', error);
       });
   </script>
-  
+</head>
+<body>
+  <form id="form">
+    <label for="webarchive-file">iOS Webarchive File:</label>
+    <input type="file" id="webarchive-file" accept=".webarchive">
+    <button type="submit" class="button">Decode</button>
+  </form>
+  <div id="result">
+    <div id="text-viewer"></div>
+  </div>
+  <script src="script.js" type="module"></script>
+  <script src="main.js" type="module"></script>
 </body>
-
 </html>
