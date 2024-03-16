@@ -1,3 +1,7 @@
+const webarchive = require('node-webarchive');
+const htmlToText = require('html-to-text');
+const fs = require('fs');
+
 const textViewer = document.getElementById('text-viewer');
 textViewer.style.overflow = 'scroll';
 
@@ -23,11 +27,9 @@ form.addEventListener('submit', async (event) => {
 });
 
 async function decodeiOSWebarchiveToPlainText(file) {
-  const fileData = await file.arrayBuffer();
-
+  const fileData = fs.readFileSync(file.path);
   const decodedData = await webarchive.decode(fileData);
   const htmlContent = decodedData.toString();
-
   const plainText = htmlToText.fromString(htmlContent, {
     wordwrap: false,
     ignoreImage: true

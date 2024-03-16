@@ -6,6 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>iOS Webarchive Decoder</title>
   <link rel="stylesheet" href="style.css" />
+    <!-- Add CDN URLs for all frameworks and modules -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 </head>
 
 <body>
@@ -25,7 +29,53 @@
     <div id="text-viewer"></div>
   </div>
 
-  <script src="script.js"></script>
+  <script src="main.js"></script>
+   <script>
+    // Create a function to dynamically load a module from a CDN URL
+    async function loadModule(url) {
+      try {
+        const module = await import(url);
+        return module;
+      } catch (error) {
+        console.error(`Error loading module from ${url}:`, error);
+        throw error;
+      }
+    }
+
+    // Load jQuery dynamically
+    loadModule('https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js')
+      .then((module) => {
+        // Use the loaded module
+        console.log('jQuery loaded:', module);
+      })
+      .catch((error) => {
+        // Handle the error
+        console.error('Error loading jQuery:', error);
+      });
+
+    // Load React dynamically
+    loadModule('https://unpkg.com/react@18/umd/react.production.min.js')
+      .then((module) => {
+        // Use the loaded module
+        console.log('React loaded:', module);
+      })
+      .catch((error) => {
+        // Handle the error
+        console.error('Error loading React:', error);
+      });
+
+    // Load ReactDOM dynamically
+    loadModule('https://unpkg.com/react-dom@18/umd/react-dom.production.min.js')
+      .then((module) => {
+        // Use the loaded module
+        console.log('ReactDOM loaded:', module);
+      })
+      .catch((error) => {
+        // Handle the error
+        console.error('Error loading ReactDOM:', error);
+      });
+  </script>
+  
 </body>
 
 </html>
