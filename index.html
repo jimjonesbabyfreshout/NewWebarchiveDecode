@@ -1,12 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head><meta charset="UTF-8"><meta content="width=device-width,initial-scale=1.0" name="viewport"><meta content="telephone=no" name="format-detection"><meta content="address=no" name="format-detection"><meta content="dark light" name="color-scheme"><meta content="origin" name="referrer">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>iOS Webarchive Decoder</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
   <style>
     /* Insert additional CSS optimizations and enhancements here */
+
+    /* Mobile optimizations */
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem;
+      }
+
+      .header {
+        text-align: center;
+      }
+
+      .main {
+        margin-top: 1rem;
+      }
+
+      #text-viewer {
+        font-size: 1.2rem;
+      }
+
+      .actions {
+        margin-top: 1rem;
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+      }
+
+      #find-and-replace-form {
+        margin-top: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+    }
   </style>
   <script type="module">
     document.addEventListener('DOMContentLoaded', () => {
@@ -14,6 +49,22 @@
       const textViewer = document.getElementById('text-viewer');
       const copyButton = document.getElementById('copy-button');
       const downloadButton = document.getElementById('download-button');
+      const findAndReplaceForm = document.getElementById('find-and-replace-form');
+      const findInput = document.getElementById('find-input');
+      const replaceInput = document.getElementById('replace-input');
+      const replaceAllButton = document.getElementById('replace-all-button');
+      const darkModeToggle = document.getElementById('dark-mode-toggle');
+
+      // Initialize dark mode
+      const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (prefersDarkMode) {
+        document.body.classList.add('dark-mode');
+      }
+
+      // Dark mode toggle event listener
+      darkModeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+      });
 
       form.addEventListener('submit', async (event) => {
         event.preventDefault();
@@ -42,7 +93,7 @@
       });
 
       function decodeHtml(html) {
-        const txt = document.createElement("textarea");
+        const txt = document.createElement('textarea');
         txt.innerHTML = html;
         return unescapeUnicode(txt.value);
       }
@@ -72,19 +123,61 @@
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
       });
+
+      findAndReplaceForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+
+        const findText = findInput.value;
+        const replaceText = replaceInput.value;
+
+        if (!findText) {
+          alert('Please enter a string to find.');
+          return;
+        }
+
+        const plainText = textViewer.textContent;
+        const replacedText = plainText.replace(new RegExp(findText, 'g'), replaceText);
+        textViewer.textContent = replacedText;
+      });
+
+      replaceAllButton.addEventListener('click', () => {
+        findAndReplaceForm.dispatchEvent(new Event('submit'));
+      });
     });
   </script>
 </head>
+
 <body>
-  <form id="form">
-    <label for="webarchive-file">iOS Webarchive File:</label>
-    <input type="file" id="webarchive-file" accept=".webarchive">
-    <button type="submit" class="button">Decode</button>
-  </form>
-  <div id="result">
-    <div id="text-viewer"></div>
-    <button id="copy-button">Copy to Clipboard</button>
-    <button id="download-button">Download Decoded File</button>
+  <div class="container">
+    <div class="header">
+      <h1>iOS Webarchive Decoder</h1>
+      <div class="dark-mode-toggle-container">
+        <label for="dark-mode-toggle">Dark mode</label>
+        <input type="checkbox" id="dark-mode-toggle" />
+      </div>
+    </div>
+    <div class="main">
+      <form id="form">
+        <label for="webarchive-file">iOS Webarchive File:</label>
+        <input type="file" id="webarchive-file" accept=".webarchive" />
+        <button type="submit" class="button">Decode</button>
+      </form>
+      <div id="result">
+        <div id="text-viewer"></div>
+        <div class="actions">
+          <button id="copy-button">Copy to Clipboard</button>
+          <button id="download-button">Download Decoded File</button>
+        </div>
+        <form id="find-and-replace-form">
+          <label for="find-input">Find:</label>
+          <input type="text" id="find-input" />
+          <label for="replace-input">Replace with:</label>
+          <input type="text" id="replace-input" />
+          <button type="submit" class="button" id="replace-all-button">Replace All</button>
+        </form>
+      </div>
+    </div>
   </div>
 </body>
+
 </html>
