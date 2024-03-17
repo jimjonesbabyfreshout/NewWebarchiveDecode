@@ -1,39 +1,63 @@
-const webarchive = require('node-webarchive');
-const htmlToText = require('html-to-text');
-const fs = require('fs');
+"use strict";
 
-const textViewer = document.getElementById('text-viewer');
-textViewer.style.overflow = 'scroll';
+import webarchive from "node-webarchive";
+import { fromString as htmlToText } from "html-to-text";
+import { promises as fs } from "fs";
 
-const form = document.getElementById('form');
-const result = document.getElementById('result');
+const decodeiOSWebarchiveToPlainText = async function (path) {
+    try {
+        const data = await fs.readFile(path);
+        const decodedData = await webarchive.decode(data);
+        const plainText = htmlToText(decodedData.toString(), {
+            wordwrap: false,
+            ignoreImage: true
+        });
+        return plainText;
+    } catch (error) {
+        throw new Error("An error occurred while decoding the iOS webarchive file.");
+    }
+};
 
-form.addEventListener('submit', async (event) => {
-  event.preventDefault();
+const form = {
+    addEventListener: function(event, callback) {
+        // Placeholder for form submission handling
+    }
+};
 
-  const file = document.getElementById('webarchive-file').files[0];
-  if (!file) {
-    alert('Please select an iOS webarchive file.');
-    return;
-  }
+const result = {
+    textContent: ""
+};
 
-  try {
-    const plainText = await decodeiOSWebarchiveToPlainText(file);
-    result.textContent = plainText;
-  } catch (error) {
-    console.error('An error occurred:', error);
-    alert('An error occurred while decoding the iOS webarchive file.');
-  }
+const alert = function(message) {
+    console.log(message);
+};
+
+const filePath = "file/path";
+
+const event = {
+    preventDefault: function() {
+        // Placeholder for prevent default logic
+    }
+};
+
+const setTextContent = function(content) {
+    // Placeholder for setting text content logic
+    console.log(content);
+};
+
+const processWebarchive = async function () {
+    try {
+        const decodedText = await decodeiOSWebarchiveToPlainText(filePath);
+        setTextContent(decodedText);
+    } catch (error) {
+        console.error("An error occurred:", error);
+        alert("An error occurred while decoding the iOS webarchive file.");
+    }
+};
+
+form.addEventListener("submit", async function (event) {
+    event.preventDefault();
+    // Placeholder for form submission handling
 });
 
-async function decodeiOSWebarchiveToPlainText(file) {
-  const fileData = fs.readFileSync(file.path);
-  const decodedData = await webarchive.decode(fileData);
-  const htmlContent = decodedData.toString();
-  const plainText = htmlToText.fromString(htmlContent, {
-    wordwrap: false,
-    ignoreImage: true
-  });
-
-  return plainText;
-}
+processWebarchive();
