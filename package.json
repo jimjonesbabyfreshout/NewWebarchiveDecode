@@ -10,7 +10,7 @@
   "dependencies": {
     "webpack": "^3.1.11",
     "webpack-cli": "^*",
-    "webpack-dev-server": "^*",
+    "webpack-dev-server": "^3.1.11",
     "node-webarchive": "^*",
     "html-to-text": "^*",
     "bplist-parser": "^*",
