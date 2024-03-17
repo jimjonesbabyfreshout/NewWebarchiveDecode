@@ -1,90 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>iOS Webarchive Decoder</title>
-  <link rel="stylesheet" href="style.css">
-  <style>
-    /* Insert additional CSS optimizations and enhancements here */
-  </style>
-  <script type="module">
-    document.addEventListener('DOMContentLoaded', () => {
-      const form = document.getElementById('form');
-      const textViewer = document.getElementById('text-viewer');
-      const copyButton = document.getElementById('copy-button');
-      const downloadButton = document.getElementById('download-button');
-
-      form.addEventListener('submit', async (event) => {
-        event.preventDefault();
-
-        const file = document.getElementById('webarchive-file').files[0];
-        if (!file) {
-          alert('Please select an iOS webarchive file.');
-          return;
-        }
-
-        try {
-          const fileData = await file.arrayBuffer();
-          const textDecoder = new TextDecoder('utf-8');
-          const decodedText = textDecoder.decode(fileData);
-          const htmlContent = decodedText.match(/<html[^>]*>[\s\S]*?<\/html>/i);
-          if (htmlContent) {
-            const plainText = decodeHtml(htmlContent[0]);
-            textViewer.textContent = plainText;
-          } else {
-            alert('Invalid iOS webarchive file. No HTML content found.');
-          }
-        } catch (error) {
-          console.error('An error occurred:', error);
-          alert('An error occurred while decoding the iOS webarchive file.');
-        }
-      });
-
-      function decodeHtml(html) {
-        const txt = document.createElement("textarea");
-        txt.innerHTML = html;
-        return unescapeUnicode(txt.value);
-      }
-
-      function unescapeUnicode(str) {
-        return str.replace(/\\u([a-fA-F0-9]{4})/g, (match, grp) => {
-          return String.fromCharCode(parseInt(grp, 16));
-        });
-      }
-
-      copyButton.addEventListener('click', () => {
-        const plainText = textViewer.textContent;
-        navigator.clipboard.writeText(plainText)
-          .then(() => alert('Text copied to clipboard'))
-          .catch(error => console.error('Error copying text:', error));
-      });
-
-      downloadButton.addEventListener('click', () => {
-        const plainText = textViewer.textContent;
-        const blob = new Blob([plainText], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'decoded_text.txt';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      });
-    });
-  </script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>iOS Webarchive Decoder</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <form id="form">
-    <label for="webarchive-file">iOS Webarchive File:</label>
-    <input type="file" id="webarchive-file" accept=".webarchive">
-    <button type="submit" class="button">Decode</button>
-  </form>
-  <div id="result">
-    <div id="text-viewer"></div>
-    <button id="copy-button">Copy to Clipboard</button>
-    <button id="download-button">Download Decoded File</button>
-  </div>
+<form id="form">
+<label for="webarchive-file">iOS Webarchive File:</label>
+<input type="file" id="webarchive-file" accept=".webarchive">
+<button type="submit" class="button">Decode</button>
+</form>
+<div id="result">
+<div id="text-viewer"></div>
+<button id="copy-button">Copy to Clipboard</button>
+<button id="download-button">Download Decoded File</button>
+</div>
+<script type="module">
+document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("form");
+    const result = document.getElementById("result");
+    const textViewer = document.getElementById("text-viewer");
+    const copyButton = document.getElementById("copy-button");
+    const downloadButton = document.getElementById("download-button");
+
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const file = document.getElementById("webarchive-file").files[0];
+        if (file) {
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const decoder = new TextDecoder("utf-8");
+                const htmlContent = decoder.decode(arrayBuffer).match(/<html[^>]*>[\s\S]*?<\/html>/i);
+                if (htmlContent) {
+                    const decodedHtml = decodeHtml(htmlContent[0]);
+                    textViewer.textContent = decodedHtml;
+                    copyButton.disabled = false;
+                    downloadButton.disabled = false;
+                } else {
+                    alert("Invalid iOS webarchive file. No HTML content found.");
+                }
+            } catch (error) {
+                console.error("An error occurred:", error);
+                alert("An error occurred while decoding the iOS webarchive file.");
+            }
+        } else {
+            alert("Please select an iOS webarchive file.");
+        }
+    });
+
+    copyButton.addEventListener("click", () => {
+        const content = textViewer.textContent;
+        navigator.clipboard.writeText(content)
+            .then(() => alert("Text copied to clipboard"))
+            .catch((error) => console.error("Error copying text:", error));
+    });
+
+    downloadButton.addEventListener("click", () => {
+        const content = textViewer.textContent;
+        const blob = new Blob([content], { type: "text/plain" });
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement("a");
+        anchor.href = url;
+        anchor.download = "decoded_text.txt";
+        document.body.appendChild(anchor);
+        anchor.click();
+        document.body.removeChild(anchor);
+        URL.revokeObjectURL(url);
+    });
+
+    function decodeHtml(html) {
+        const textarea = document.createElement("textarea");
+        textarea.innerHTML = html;
+        return unescapeUnicode(textarea.value);
+    }
+
+    function unescapeUnicode(text) {
+        return text.replace(/\\u([a-fA-F0-9]{4})/g, (match, group) => String.fromCharCode(parseInt(group, 16)));
+    }
+});
+</script>
 </body>
 </html>
