@@ -1,90 +1,156 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>iOS Webarchive Decoder</title>
-  <link rel="stylesheet" href="style.css">
-  <style>
-    /* Insert additional CSS optimizations and enhancements here */
-  </style>
-  <script type="module">
-    document.addEventListener('DOMContentLoaded', () => {
-      const form = document.getElementById('form');
-      const textViewer = document.getElementById('text-viewer');
-      const copyButton = document.getElementById('copy-button');
-      const downloadButton = document.getElementById('download-button');
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>iOS Webarchive Decoder</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #222;
+        color: #fff;
+        margin: 0;
+        padding: 0;
+    }
+    #container {
+        max-width: 100%;
+        padding: 20px;
+    }
+    input[type="file"] {
+        display: block;
+        margin-bottom: 10px;
+    }
+    button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        background-color: #007bff;
+        color: #fff;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+    button:hover {
+        background-color: #0056b3;
+    }
+    #text-viewer {
+        padding: 10px;
+        margin-top: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #333;
+        color: #fff;
+        overflow: auto;
+    }
+</style>
+<script src="https://unpkg.com/turndown/dist/turndown.js"></script>
+<script type="module">
+    document.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById("form");
+        const textViewer = document.getElementById("text-viewer");
+        const copyButton = document.getElementById("copy-button");
+        const downloadButton = document.getElementById("download-button");
+        const decodeButton = document.getElementById("decode-button");
+        const fileInput = document.getElementById("webarchive-file");
 
-      form.addEventListener('submit', async (event) => {
-        event.preventDefault();
-
-        const file = document.getElementById('webarchive-file').files[0];
-        if (!file) {
-          alert('Please select an iOS webarchive file.');
-          return;
-        }
-
-        try {
-          const fileData = await file.arrayBuffer();
-          const textDecoder = new TextDecoder('utf-8');
-          const decodedText = textDecoder.decode(fileData);
-          const htmlContent = decodedText.match(/<html[^>]*>[\s\S]*?<\/html>/i);
-          if (htmlContent) {
-            const plainText = decodeHtml(htmlContent[0]);
-            textViewer.textContent = plainText;
-          } else {
-            alert('Invalid iOS webarchive file. No HTML content found.');
-          }
-        } catch (error) {
-          console.error('An error occurred:', error);
-          alert('An error occurred while decoding the iOS webarchive file.');
-        }
-      });
-
-      function decodeHtml(html) {
-        const txt = document.createElement("textarea");
-        txt.innerHTML = html;
-        return unescapeUnicode(txt.value);
-      }
-
-      function unescapeUnicode(str) {
-        return str.replace(/\\u([a-fA-F0-9]{4})/g, (match, grp) => {
-          return String.fromCharCode(parseInt(grp, 16));
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const webarchiveFile = fileInput.files[0];
+            if (webarchiveFile) {
+                try {
+                    const arrayBuffer = await webarchiveFile.arrayBuffer();
+                    const decodedText = new TextDecoder("utf-8").decode(arrayBuffer).match(/<html[^>]*>[\s\S]*?<\/html>/i);
+                    if (decodedText) {
+                        const formattedText = formatText(decodedText[0]);
+                        textViewer.textContent = formattedText;
+                        copyButton.style.display = "block";
+                        downloadButton.style.display = "block";
+                        decodeButton.style.display = "block";
+                    } else {
+                        alert("Invalid iOS webarchive file. No HTML content found.");
+                    }
+                } catch (error) {
+                    console.error("An error occurred:", error);
+                    alert("An error occurred while decoding the iOS webarchive file.");
+                }
+            } else {
+                alert("Please select an iOS webarchive file.");
+            }
         });
-      }
 
-      copyButton.addEventListener('click', () => {
-        const plainText = textViewer.textContent;
-        navigator.clipboard.writeText(plainText)
-          .then(() => alert('Text copied to clipboard'))
-          .catch(error => console.error('Error copying text:', error));
-      });
+        copyButton.addEventListener("click", function() {
+            const text = textViewer.textContent;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text)
+                    .then(() => alert("Text copied to clipboard"))
+                    .catch(error => console.error("Error copying text:", error));
+            } else {
+                fallbackCopyTextToClipboard(text);
+            }
+        });
 
-      downloadButton.addEventListener('click', () => {
-        const plainText = textViewer.textContent;
-        const blob = new Blob([plainText], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'decoded_text.txt';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      });
+        downloadButton.addEventListener("click", () => {
+            const decodedText = textViewer.textContent;
+            const blob = new Blob([decodedText], { type: "text/plain" });
+            const url = URL.createObjectURL(blob);
+            const anchor = document.createElement("a");
+            anchor.href = url;
+            anchor.download = "decoded_text.txt";
+            document.body.appendChild(anchor);
+            anchor.click();
+            document.body.removeChild(anchor);
+            URL.revokeObjectURL(url);
+        });
+
+        decodeButton.addEventListener("click", () => {
+            const markdownText = convertToMarkdown(textViewer.textContent);
+            textViewer.textContent = markdownText;
+            decodeButton.style.display = "none";
+        });
+
+        function formatText(text) {
+            const textarea = document.createElement("textarea");
+            textarea.innerHTML = text;
+            return textarea.value.replace(/\\u([a-fA-F0-9]{4})/g, (match, group) => String.fromCharCode(parseInt(group, 16)));
+        }
+
+        function fallbackCopyTextToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";  
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            try {
+                const successful = document.execCommand("copy");
+                const message = successful ? "Text copied to clipboard" : "Unable to copy text to clipboard";
+                alert(message);
+            } catch (error) {
+                console.error("Error copying text:", error);
+                alert("Error copying text to clipboard");
+            }
+            document.body.removeChild(textArea);
+        }
+
+        function convertToMarkdown(html) {
+            const turndownService = new TurndownService();
+            const markdown = turndownService.turndown(html);
+            return markdown;
+        }
     });
-  </script>
+</script>
 </head>
 <body>
-  <form id="form">
-    <label for="webarchive-file">iOS Webarchive File:</label>
-    <input type="file" id="webarchive-file" accept=".webarchive">
-    <button type="submit" class="button">Decode</button>
-  </form>
-  <div id="result">
+<div id="container">
+    <form id="form" name="form">
+        <label for="webarchive-file">iOS Webarchive File:</label>
+        <input type="file" id="webarchive-file" accept=".webarchive">
+        <button type="submit">Decode</button>
+    </form>
+    <button id="copy-button" style="display: none;">Copy to Clipboard</button>
+    <button id="download-button" style="display: none;">Download Decoded File</button>
+    <button id="decode-button" style="display: none;">Convert to Markdown</button>
     <div id="text-viewer"></div>
-    <button id="copy-button">Copy to Clipboard</button>
-    <button id="download-button">Download Decoded File</button>
-  </div>
+</div>
 </body>
 </html>

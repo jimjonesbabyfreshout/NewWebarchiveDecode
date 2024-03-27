@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>iOS Webarchive Decoder</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Add your CSS styles here */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>iOS Webarchive Decoder</h1>
+            <div class="dark-mode-toggle-container">
+                <label for="dark-mode-toggle">Dark mode</label>
+                <input type="checkbox" id="dark-mode-toggle">
+            </div>
+        </div>
+        <div class="main">
+            <form id="form" name="form">
+                <label for="webarchive-file">iOS Webarchive File:</label>
+                <input type="file" id="webarchive-file" accept=".webarchive">
+                <button type="submit" class="button">Decode</button>
+            </form>
+            <div id="result">
+                <div id="text-viewer"></div>
+                <div class="actions">
+                    <button id="copy-button">Copy to Clipboard</button>
+                    <button id="download-button">Download Decoded File</button>
+                </div>
+                <form id="find-and-replace-form" name="find-and-replace-form">
+                    <label for="find-input">Find:</label>
+                    <input id="find-input">
+                    <label for="replace-input">Replace with:</label>
+                    <input id="replace-input">
+                    <button type="submit" class="button" id="replace-all-button">Replace All</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        "use strict";
+        document.addEventListener("DOMContentLoaded", function() {
+            const darkModeToggle = document.getElementById("dark-mode-toggle");
+            window.matchMedia("(prefers-color-scheme: dark)").matches && document.body.classList.add("dark-mode");
+            darkModeToggle.addEventListener("click", function() {
+                document.body.classList.toggle("dark-mode");
+            });
+
+            const form = document.getElementById("form");
+            const textViewer = document.getElementById("text-viewer");
+            const copyButton = document.getElementById("copy-button");
+            const downloadButton = document.getElementById("download-button");
+            const findAndReplaceForm = document.getElementById("find-and-replace-form");
+            const findInput = document.getElementById("find-input");
+            const replaceInput = document.getElementById("replace-input");
+            const replaceAllButton = document.getElementById("replace-all-button");
+
+            form.addEventListener("submit", async function(event) {
+                event.preventDefault();
+                const file = document.getElementById("webarchive-file").files[0];
+                if (!file) {
+                    alert("Please select an iOS webarchive file.");
+                    return;
+                }
+                try {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const decoder = new TextDecoder("utf-8");
+                    const content = decoder.decode(arrayBuffer);
+                    const htmlContent = content.match(/<html[^>]*>[\s\S]*?<\/html>/i);
+                    if (htmlContent) {
+                        const decodedText = htmlContent[0];
+                        textViewer.textContent = decodedText;
+                    } else {
+                        alert("Invalid iOS webarchive file. No HTML content found.");
+                    }
+                } catch (error) {
+                    console.error("An error occurred:", error);
+                    alert("An error occurred while decoding the iOS webarchive file.");
+                }
+            });
+
+            copyButton.addEventListener("click", function() {
+                const text = textViewer.textContent;
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(text)
+                        .then(() => alert("Text copied to clipboard"))
+                        .catch(error => console.error("Error copying text:", error));
+                } else {
+                    fallbackCopyTextToClipboard(text);
+                }
+            });
+
+            function fallbackCopyTextToClipboard(text) {
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                textArea.style.position = "fixed";  
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+
+                try {
+                    const successful = document.execCommand("copy");
+                    const message = successful ? "Text copied to clipboard" : "Unable to copy text to clipboard";
+                    alert(message);
+                } catch (error) {
+                    console.error("Error copying text:", error);
+                    alert("Error copying text to clipboard");
+                }
+
+                document.body.removeChild(textArea);
+            }
+
+            downloadButton.addEventListener("click", function() {
+                const text = textViewer.textContent;
+                const blob = new Blob([text], { type: "text/plain" });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = "decoded_text.txt";
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            });
+
+            findAndReplaceForm.addEventListener("submit", function(event) {
+                event.preventDefault();
+                const findValue = findInput.value;
+                const replaceValue = replaceInput.value;
+                if (!findValue) {
+                    alert("Please enter a string to find.");
+                    return;
+                }
+                const currentText = textViewer.textContent;
+                const updatedText = currentText.replace(new RegExp(findValue, "g"), replaceValue);
+                textViewer.textContent = updatedText;
+            });
+
+            replaceAllButton.addEventListener("click", function() {
+                findAndReplaceForm.dispatchEvent(new Event("submit"));
+            });
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/javascript-obfuscator/dist/index.browser.js"></script>
+</body>
+</html>

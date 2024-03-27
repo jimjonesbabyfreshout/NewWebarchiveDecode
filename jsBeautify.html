@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script type="module">
+import require from 'https://cdn.jsdelivr.net/npm/require@2.4.20/+esm'
+</script>
+
+
+
+</head>
+
+  <body>
+  
+  <script type="module">var server = http.createServer(function(req, res) { })
+require('require/server').mount(server)
+server.listen(8080, 'localhost')</script>
+    <script type="module">// Programmatic access
+      import { js_beautify } from 'https://cdn.jsdelivr.net/npm/js-beautify@1.15.1';
+      import fs from 'fs';
+
+      // All methods accept two arguments, the string to be beautified, and an options object.
+      fs.readFile('foo.js', 'utf8', function (err, data) {
+          if (err) {
+              throw err;
+          }
+          console.log(js_beautify(data, { indent_size: 2, space_in_empty_paren: true }));
+      });
+
+      const options = { indent_size: 2, space_in_empty_paren: true };
+
+      const dataObj = { completed: false, id: 1, title: "delectus aut autem", userId: 1 };
+
+      const dataJson = JSON.stringify(dataObj);
+
+      js_beautify(dataJson, options);
+
+      /* OUTPUT
+      {
+        "completed": false,
+        "id": 1,
+        "title": "delectus aut autem",
+        "userId": 1,
+      */</script>
+<script src="//localhost:1234/require/client"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.15.1/beautify.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.15.1/beautify-css.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.15.1/beautify-html.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.15.1/beautify.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.15.1/beautify-css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.15.1/beautify-html.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.15.1/beautify.min.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
